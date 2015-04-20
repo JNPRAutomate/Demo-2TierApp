@@ -32,3 +32,5 @@ To remove Wordpress install we call the remove-wordpress.yml playbook with the s
 cd /vagrant/ansible/
 ansible-playbook -i ./inventory.yml --extra-vars=@bobpress.yml playbooks/remove-wordpress.yml --ask-pass
 ```
+
+### FIX ANSIBLE LIBRARY PATHING

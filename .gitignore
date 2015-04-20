@@ -1,0 +1,6 @@
+.DS_Store
+.vagrant/
+wordpress/
+
+# Ignore Log files
+*.log

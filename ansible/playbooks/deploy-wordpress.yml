@@ -1,0 +1,115 @@
+---
+#- include: deploy-database.yml
+#- include: deploy-webserver.yml
+
+- name: Install WordPress Database
+  hosts: database_servers
+  remote_user: vagrant
+  sudo: yes
+  gather_facts: no
+  tasks:
+    - name: Setup empty database for WordPress
+      mysql_db:
+        name: "{{wordpress.db_name}}"
+        encoding: "utf8"
+        collation: "utf8_unicode_ci"
+        state: "present"
+        login_user: "root"
+        login_password: "mysql"
+
+    - name: Setup MySQL user for WordPress
+      mysql_user:
+        name: "{{wordpress.db_user}}"
+        password: "{{wordpress.db_password}}"
+        host: "{{item}}"
+        priv: "{{wordpress.db_name}}.*:ALL"
+        state: "present"
+      with_items:
+        - 172.17.0.10
+        - 172.16.0.10
+        - localhost
+
+- name: Install WordPress Site
+  hosts: web_servers
+  remote_user: vagrant
+  sudo: yes
+  gather_facts: no
+  vars:
+    webroot: "/var/www"
+    www_user: "root"
+    www_group: "www-data"
+
+  tasks:
+    - name: Create vhost directory
+      file:
+        path: "{{webroot}}/{{wordpress.short_name}}"
+        state: directory
+        mode: 0777
+        owner: "{{www_user}}"
+        group: "{{www_group}}"
+
+    - name: Unzip WordPress
+      unarchive:
+        src: files/wordpress.zip
+        dest: /tmp/
+        creates: /tmp/wordpress/
+
+    - name: Move archive
+      copy:
+        src: /tmp/wordpress/
+        dest:  "{{webroot}}/{{wordpress.short_name}}/"
+        owner: "{{www_user}}"
+        group: "{{www_group}}"
+        force: no
+
+    - name: create wordpress configuration
+      template:
+        src: templates/wp-config.php.j2
+        dest: "{{webroot}}/{{wordpress.short_name}}/wp-config.php"
+        mode: 0644
+        owner: "{{www_user}}"
+        group: "{{www_group}}"
+
+    - name: Copy virtual host setup over
+      template:
+        src: templates/vhost.conf
+        dest: /etc/apache2/sites-available/vhost_{{wordpress.short_name}}.conf
+
+    - name: Activate virtual host
+      command: a2ensite vhost_{{wordpress.short_name}}.conf
+
+
+    - name: Ensure Apache is running
+      service: name=apache2 state=restarted enabled=yes
+
+- name: Install SRX Policies
+  hosts: mysrx
+  connection: local
+  gather_facts: no
+  vars:
+    junos_user: "root"
+    junos_password: "Juniper"
+    build_dir: "/tmp/"
+    address_entries: [
+      {'name':'{{wordpress.short_name}}-web','prefix':'{{wordpress.www_host}}'},
+      {'name':'{{wordpress.short_name}}-db','prefix':'{{wordpress.db_host}}'}
+    ]
+    fw_policy_info: [
+      {'policy_name':'Allow_{{wordpress.short_name}}','src_zone':'untrust','dst_zone':'web','src_ips':['any'],'dst_ips':['{{wordpress.short_name}}-web'],'action':'permit','apps':['junos-http']},
+      {'policy_name':'Allow_{{wordpress.short_name}}','src_zone':'web','dst_zone':'database','src_ips':['any'],'dst_ips':['{{wordpress.short_name}}-db'],'action':'permit','apps':['custom-mysql']}
+    ]
+
+  tasks:
+    - name: Build address book entries
+      template: src=templates/fw_address_book_global.set.j2 dest={{build_dir}}/fw_address_book_global.set
+      with_items: address_entries
+
+    - name: Apply address book entries
+      junos_install_config: host={{ inventory_hostname }} user={{ junos_user }} passwd={{ junos_password }} file={{ build_dir }}/fw_address_book_global.set overwrite=no logfile=logs/{{ inventory_hostname }}.log
+
+    - name: Build firewall policies config template
+      template: src=templates/fw_policy.set.j2 dest={{build_dir}}/fw_policy.set
+      with_items: fw_policy_info
+
+    - name: Apply firewall policies
+      junos_install_config: host={{ inventory_hostname }} user={{ junos_user }} passwd={{ junos_password }} file={{ build_dir }}/fw_policy.set overwrite=no logfile=logs/{{ inventory_hostname }}.log

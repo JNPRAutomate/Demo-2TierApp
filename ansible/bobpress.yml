@@ -1,0 +1,10 @@
+---
+wordpress:
+  name: "Bob's Wordpress"
+  domain: "wp-bob"
+  short_name: "wp_bob"
+  db_name: "wp_bob"
+  db_user: "wp_bob"
+  db_password: "wp_bob_SECRETZ"
+  db_host: 172.17.0.10
+  www_host: 172.16.0.10

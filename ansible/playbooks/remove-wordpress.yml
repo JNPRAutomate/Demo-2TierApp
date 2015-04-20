@@ -1,0 +1,92 @@
+---
+#- include: deploy-database.yml
+#- include: deploy-webserver.yml
+
+- name: Install WordPress Database
+  hosts: database_servers
+  remote_user: vagrant
+  sudo: yes
+  gather_facts: no
+  tasks:
+    - name: Delete MySQL user for WordPress
+      mysql_user:
+        name: "{{wordpress.db_user}}"
+        password: "{{wordpress.db_password}}"
+        host: "{{item}}"
+        priv: "{{wordpress.db_name}}.*:ALL"
+        state: "absent"
+      with_items:
+        - 172.17.0.10
+        - 172.16.0.10
+        - localhost
+
+    - name: Delete database for WordPress
+      mysql_db:
+        name: "{{wordpress.db_name}}"
+        encoding: "utf8"
+        collation: "utf8_unicode_ci"
+        state: "absent"
+        login_user: "root"
+        login_password: "mysql"
+
+- name: Install WordPress Site
+  hosts: web_servers
+  remote_user: vagrant
+  sudo: yes
+  gather_facts: no
+  vars:
+    webroot: "/var/www"
+    www_user: "root"
+    www_group: "www-data"
+
+  tasks:
+    - name: Disable virtual host
+      command: a2dissite vhost_{{wordpress.short_name}}.conf
+
+    - name: Delete virtual host config
+      template:
+        src: templates/vhost.conf
+        dest: /etc/apache2/sites-available/vhost_{{wordpress.short_name}}.conf
+
+    - name: Ensure Apache is running
+      service: name=apache2 state=restarted enabled=yes
+
+    - name: Delete vhost directory
+      file:
+        path: "{{webroot}}/{{wordpress.short_name}}"
+        state: absent
+        mode: 0777
+        owner: "{{www_user}}"
+        group: "{{www_group}}"
+
+- name: Install SRX Policies
+  hosts: mysrx
+  connection: local
+  gather_facts: no
+  vars:
+    junos_user: "root"
+    junos_password: "Juniper"
+    build_dir: "/tmp/"
+    address_entries: [
+      {'name':'{{wordpress.short_name}}-web','prefix':'{{wordpress.www_host}}'},
+      {'name':'{{wordpress.short_name}}-db','prefix':'{{wordpress.db_host}}'}
+    ]
+    fw_policy_info: [
+      {'policy_name':'Allow_{{wordpress.short_name}}','src_zone':'untrust','dst_zone':'web','src_ips':['any'],'dst_ips':['{{wordpress.short_name}}-web'],'action':'permit','apps':['junos-http']},
+      {'policy_name':'Allow_{{wordpress.short_name}}','src_zone':'web','dst_zone':'database','src_ips':['any'],'dst_ips':['{{wordpress.short_name}}-db'],'action':'permit','apps':['custom-mysql']}
+    ]
+
+  tasks:
+    - name: Build firewall policies config template
+      template: src=templates/del_fw_policy.set.j2 dest={{build_dir}}/del_fw_policy.set
+      with_items: fw_policy_info
+
+    - name: De;te firewall policies
+      junos_install_config: host={{ inventory_hostname }} user={{ junos_user }} passwd={{ junos_password }} file={{ build_dir }}/del_fw_policy.set overwrite=no logfile=logs/{{ inventory_hostname }}.log
+
+    - name: Build address book entries
+      template: src=templates/del_fw_address_book_global.set.j2 dest={{build_dir}}/del_fw_address_book_global.set
+      with_items: address_entries
+
+    - name: Delete address book entries
+      junos_install_config: host={{ inventory_hostname }} user={{ junos_user }} passwd={{ junos_password }} file={{ build_dir }}/del_fw_address_book_global.set overwrite=no logfile=logs/{{ inventory_hostname }}.log

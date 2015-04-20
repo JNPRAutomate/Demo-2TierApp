@@ -1,0 +1,41 @@
+---
+- name: Configure Web Servers
+  hosts: web_servers
+  remote_user: vagrant
+  sudo: yes
+  gather_facts: no
+  tasks:
+    - name: Install unzip
+      apt: pkg=unzip state=installed update_cache=yes
+
+    - name: Install MySQL client
+      apt: pkg={{ item }} state=latest
+      with_items:
+        - mysql-client
+        - python-mysqldb
+
+    - name: Install PHP and its modules
+      apt: pkg={{ item }} state=latest
+      with_items:
+        - php5
+        - php5-cli
+        - php5-curl
+        - php5-gd
+        - php5-imagick
+        - php5-mysql
+        - php5-xmlrpc
+
+    - name: Install Apache and its modules
+      apt: pkg={{ item }} state=latest
+      with_items:
+        - apache2
+        - libapache2-mod-php5
+
+    - name: Activate mod_rewrite
+      apache2_module: name=rewrite state=present
+
+    - name: Put "vagrant" user in www-data group
+      user:
+        name: "vagrant"
+        groups: "www-data"
+        append: yes

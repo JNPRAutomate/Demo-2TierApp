@@ -1,0 +1,10 @@
+---
+wordpress:
+  name: "Jane's Thoughts of the Day"
+  domain: "wp-jane"
+  short_name: "wp_jane"
+  db_name: "wp_jane"
+  db_user: "wp_jane"
+  db_password: "wp_jane_SECRETZ"
+  db_host: 172.17.0.10
+  www_host: 172.16.0.10

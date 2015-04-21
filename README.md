@@ -23,7 +23,7 @@ ansible-playbook -i ./inventory.yml --extra-vars=@janepress.yml playbooks/deploy
 
 # Connect to Wordpress install
 We have a Vagrant portforward on port 11080 redirecting to the Webserver (172.16.0.10). You will need to create either a DNS or a host entry for this.
-	(http://wp-bob.example.com)
+	(http://wp-bob.example.com:11080)
 
 # Remove Wordpress
 To remove Wordpress install we call the remove-wordpress.yml playbook with the same Customer YAML file

@@ -6,7 +6,7 @@
   gather_facts: no
   tasks:
     - name: Install unzip
-      apt: pkg=unzip state=installed update_cache=yes
+      apt: pkg=unzip state=installed update_cache=yes cache_valid_time=3600
 
     - name: Install MySQL client
       apt: pkg={{ item }} state=latest

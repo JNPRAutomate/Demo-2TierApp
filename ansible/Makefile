@@ -11,3 +11,7 @@ wordpress:
 
 remove_wordpress:
 	ansible-playbook -i ./inventory.yml --extra-vars=@bobpress.yml playbooks/remove-wordpress.yml --ask-pass
+
+test_wordpress:
+	curl -v http://localhost -H "Host: wp-bob.example.com"
+	curl -v http://localhost -H "Host: wp-jane.example.com"

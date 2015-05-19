@@ -7,7 +7,7 @@
   gather_facts: no
   tasks:
     - name: Install unzip
-      apt: pkg=unzip state=installed update_cache=yes
+      apt: pkg=unzip state=installed update_cache=yes cache_valid_time=3600
 
     - name: Install MySQL client, server and related libraries
       apt: pkg={{ item }} state=latest
@@ -22,7 +22,27 @@
         state: absent
         regexp: "^bind-address"
 
-    - name: Start MySQL service
+    - name: Set MySQL bind address
+      lineinfile:
+        dest: /etc/mysql/my.cnf
+        state: present
+        regexp: "^bind-address"
+        insertafter: '^\[mysqld\]'
+        line: "bind-address=0.0.0.0"
+
+    - name: Restart MySQL service
+      service:
+        name: "mysql"
+        state: restarted
+        enabled: yes
+
+    - name: Reload MySQL service config
+      service:
+        name: "mysql"
+        state: reloaded
+        enabled: yes
+
+    - name: Restart MySQL service
       service:
         name: "mysql"
         state: restarted

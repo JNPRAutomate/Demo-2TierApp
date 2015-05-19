@@ -12,7 +12,7 @@ ansible-playbook -i ./inventory.yml playbooks/deploy-webserver.yml --ask-pass
 ```
 
 # Deploy Wordpress
-We have two sample wordpress customers "Bob" and "Jane", each with their own YAML file. 
+We have two sample wordpress customers "Bob" and "Jane", each with their own YAML file.
 
 ```
 cd /vagrant/ansible/
@@ -33,4 +33,28 @@ cd /vagrant/ansible/
 ansible-playbook -i ./inventory.yml --extra-vars=@bobpress.yml playbooks/remove-wordpress.yml --ask-pass
 ```
 
-### FIX ANSIBLE LIBRARY PATHING
+# Simple Deploy
+
+To execute all of the deploy commands without needing to type or copy them out you can use the Ansible makefile. This will still request your credentials at each step. So mind for the propmpts as they are asked. It will ask four times.
+
+```
+# This will deploy and configure the databases for you. It will not do the remove step
+cd /vagrant/ansible/
+make all
+```
+
+Or also you can deploy each set of steps
+```
+# This will deploy and configure the databases for you. It will not do the remove step
+cd /vagrant/ansible/
+make inital
+make wordpress
+#optionally to remove the config
+make remove_wordpress
+```
+
+Lastly you can test the install
+```
+cd /vagrant/ansible/
+make test_wordpress
+```

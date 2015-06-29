@@ -27,6 +27,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
     #VMware configuration
     web.vm.provider "vmware_fusion" do |v|
+      v.gui = false
       v.vmx["vhv.enable"] = "TRUE"
       v.vmx["ethernet1.generatedAddress"] = nil
       v.vmx["ethernet1.connectionType"] = "custom"
@@ -54,7 +55,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
     db.vm.provider "virtualbox" do |v|
       # comment out to disable gui from starting
-      #v.gui = true
+      v.gui = false
       # comment out below lines if you disable gui
       #v.customize ["modifyvm", :id, "--vram", "128"]
       #v.customize ["modifyvm", :id, "--accelerate3d", "on"]
@@ -62,6 +63,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
     #VMware configuration
     db.vm.provider "vmware_fusion" do |v|
+      v.gui = false
       v.vmx["vhv.enable"] = "TRUE"
       v.vmx["ethernet1.generatedAddress"] = nil
       v.vmx["ethernet1.connectionType"] = "custom"
@@ -92,12 +94,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     srx.vm.provider "virtualbox" do |v|
       # increase RAM to support AppFW and IPS
       # comment out to make it run at 2GB
+      v.gui = false
       v.customize ["modifyvm", :id, "--memory", "3072"]
       v.check_guest_additions = false
     end
 
     #VMware configuration
     srx.vm.provider "vmware_fusion" do |v|
+      v.gui = false
       v.vmx["memsize"] = "3072"
       v.vmx["vhv.enable"] = "TRUE"
       v.vmx["ethernet1.generatedAddress"] = nil

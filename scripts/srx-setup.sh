@@ -11,7 +11,7 @@ set security zones security-zone database host-inbound-traffic system-services a
 set security zones security-zone database host-inbound-traffic protocols all
 
 set security policies from-zone web to-zone database policy MgmtTraffic match source-address any destination-address any application junos-ssh
-set security policies from-zone web to-zone database policy MgmtTraffic application junos-ping
+set security policies from-zone web to-zone database policy MgmtTraffic match application junos-ping
 set security policies from-zone web to-zone database policy MgmtTraffic then permit
 
 set applications application custom-mysql term mysql-tcp protocol tcp

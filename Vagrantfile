@@ -9,7 +9,7 @@ require "vagrant-junos"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.define "trusty64-2tier-web", primary: true do |web|
-    web.vm.box = "ubuntu/trusty64"
+    web.vm.box = "juniper/apache-trusty64"
     web.vm.hostname = "Trusty64-2tier-Web"
     web.vm.network "private_network",
                    ip: "172.16.0.10",
@@ -25,6 +25,15 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       #v.customize ["modifyvm", :id, "--accelerate3d", "on"]
     end
 
+    #VMware configuration
+    web.vm.provider "vmware_fusion" do |v|
+      v.vmx["vhv.enable"] = "TRUE"
+      v.vmx["ethernet1.generatedAddress"] = nil
+      v.vmx["ethernet1.connectionType"] = "custom"
+      v.vmx["ethernet1.present"] = "TRUE"
+      v.vmx["ethernet1.vnet"] = "vmnet0"
+    end
+
     web.vm.provision "shell" do |s|
       # this script provisions the ndo box for you
       s.path = "scripts/web-setup.sh"
@@ -33,9 +42,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     web.vm.network "forwarded_port", guest: 80, host: 11080
 
   end
-  
+
   config.vm.define "trusty64-2tier-db", primary: true do |db|
-    db.vm.box = "ubuntu/trusty64"
+    db.vm.box = "juniper/mysql-trusty64"
     db.vm.hostname = "Trusty64-2tier-DB"
     db.vm.network "private_network",
                    ip: "172.17.0.10",
@@ -49,6 +58,15 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       # comment out below lines if you disable gui
       #v.customize ["modifyvm", :id, "--vram", "128"]
       #v.customize ["modifyvm", :id, "--accelerate3d", "on"]
+    end
+
+    #VMware configuration
+    db.vm.provider "vmware_fusion" do |v|
+      v.vmx["vhv.enable"] = "TRUE"
+      v.vmx["ethernet1.generatedAddress"] = nil
+      v.vmx["ethernet1.connectionType"] = "custom"
+      v.vmx["ethernet1.present"] = "TRUE"
+      v.vmx["ethernet1.vnet"] = "vmnet1"
     end
 
     db.vm.provision "shell" do |s|
@@ -76,6 +94,20 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       # comment out to make it run at 2GB
       v.customize ["modifyvm", :id, "--memory", "3072"]
       v.check_guest_additions = false
+    end
+
+    #VMware configuration
+    srx.vm.provider "vmware_fusion" do |v|
+      v.vmx["memsize"] = "3072"
+      v.vmx["vhv.enable"] = "TRUE"
+      v.vmx["ethernet1.generatedAddress"] = nil
+      v.vmx["ethernet1.connectionType"] = "custom"
+      v.vmx["ethernet1.present"] = "TRUE"
+      v.vmx["ethernet1.vnet"] = "vmnet0"
+      v.vmx["ethernet2.generatedAddress"] = nil
+      v.vmx["ethernet2.connectionType"] = "custom"
+      v.vmx["ethernet2.present"] = "TRUE"
+      v.vmx["ethernet2.vnet"] = "vmnet1"
     end
 
     srx.vm.provision "file", source: "scripts/srx-setup.sh", destination: "/tmp/srx-setup.sh"

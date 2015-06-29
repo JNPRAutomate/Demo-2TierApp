@@ -1,4 +1,4 @@
-all: inital wordpress
+all: wordpress
 
 
 inital:

@@ -47,8 +47,8 @@ Or also you can deploy each set of steps
 ```
 # This will deploy and configure the databases for you. It will not do the remove step
 cd /vagrant/ansible/
-make inital
 make wordpress
+
 #optionally to remove the config
 make remove_wordpress
 ```

@@ -1,23 +1,11 @@
 Juniper SRX 2-Tier App Ansible Demo
 
-# Setup initial environment
-Connect to the Web Linux host
-
-```
-vagrant ssh
-
-cd /vagrant/ansible/
-ansible-playbook -i ./inventory.yml playbooks/deploy-database.yml --ask-pass
-ansible-playbook -i ./inventory.yml playbooks/deploy-webserver.yml --ask-pass
-```
-
 # Deploy Wordpress
 We have two sample wordpress customers "Bob" and "Jane", each with their own YAML file.
 
 ```
 cd /vagrant/ansible/
 ansible-playbook -i ./inventory.yml --extra-vars=@bobpress.yml playbooks/deploy-wordpress.yml --ask-pass
-
 ansible-playbook -i ./inventory.yml --extra-vars=@janepress.yml playbooks/deploy-wordpress.yml --ask-pass
 ```
 
@@ -35,7 +23,7 @@ ansible-playbook -i ./inventory.yml --extra-vars=@bobpress.yml playbooks/remove-
 
 # Simple Deploy
 
-To execute all of the deploy commands without needing to type or copy them out you can use the Ansible makefile. This will still request your credentials at each step. So mind for the propmpts as they are asked. It will ask four times.
+To execute all of the deploy commands without needing to type or copy them out you can use the Ansible makefile. This will still request your credentials at each step. So mind for the prompts as they are asked. It will ask four times.
 
 ```
 # This will deploy and configure the databases for you. It will not do the remove step

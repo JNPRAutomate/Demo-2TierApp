@@ -46,3 +46,15 @@ Lastly you can test the install
 cd /vagrant/ansible/
 make test_wordpress
 ```
+
+# Provider Tips
+
+## Virtual box
+
+Generally we have found that virtual box works better with Vagrant. It is recommended, it is free, and since it is used more with Vagrant it ends up working better.
+
+## VMware
+
+When starting instances in VMware there can be some strange behavior. If you run into this please use "vagrant destroy" to delete the VMs and start over with bringing them up.
+
+However once a VMware VM is up and running it is usually more performant than Virtual Box. 

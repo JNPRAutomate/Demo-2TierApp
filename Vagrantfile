@@ -26,9 +26,19 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
 
     #VMware configuration
-    web.vm.provider "vmware_desktop" do |v|
+    web.vm.provider "vmware_fusion" do |v|
       v.gui = false
-      v.vmx["vhv.enable"] = "TRUE"
+      v.vmx["memsize"] = "1024"
+      v.vmx["ethernet1.generatedAddress"] = nil
+      v.vmx["ethernet1.connectionType"] = "custom"
+      v.vmx["ethernet1.present"] = "TRUE"
+      v.vmx["ethernet1.vnet"] = "vmnet0"
+    end
+
+    #VMware configuration
+    web.vm.provider "vmware_workstation" do |v|
+      v.gui = false
+      v.vmx["memsize"] = "1024"
       v.vmx["ethernet1.generatedAddress"] = nil
       v.vmx["ethernet1.connectionType"] = "custom"
       v.vmx["ethernet1.present"] = "TRUE"
@@ -62,9 +72,19 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
 
     #VMware configuration
-    db.vm.provider "vmware_desktop" do |v|
+    db.vm.provider "vmware_fusion" do |v|
       v.gui = false
-      v.vmx["vhv.enable"] = "TRUE"
+      v.vmx["memsize"] = "1024"
+      v.vmx["ethernet1.generatedAddress"] = nil
+      v.vmx["ethernet1.connectionType"] = "custom"
+      v.vmx["ethernet1.present"] = "TRUE"
+      v.vmx["ethernet1.vnet"] = "vmnet1"
+    end
+
+    #VMware configuration
+    db.vm.provider "vmware_workstation" do |v|
+      v.gui = false
+      v.vmx["memsize"] = "1024"
       v.vmx["ethernet1.generatedAddress"] = nil
       v.vmx["ethernet1.connectionType"] = "custom"
       v.vmx["ethernet1.present"] = "TRUE"
@@ -100,20 +120,32 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
 
     #VMware configuration
-    srx.vm.provider "vmware_desktop" do |v|
+    srx.vm.provider "vmware_fusion" do |v|
       v.gui = false
       v.vmx["memsize"] = "3072"
-      v.vmx["vhv.enable"] = "TRUE"
+      v.vmx["numvcpus"] = "2"
       v.vmx["ethernet1.generatedAddress"] = nil
       v.vmx["ethernet1.connectionType"] = "custom"
       v.vmx["ethernet1.present"] = "TRUE"
       v.vmx["ethernet1.vnet"] = "vmnet0"
-      v.vmx["ethernet1.noPromisc"] = "FALSE"
       v.vmx["ethernet2.generatedAddress"] = nil
       v.vmx["ethernet2.connectionType"] = "custom"
       v.vmx["ethernet2.present"] = "TRUE"
       v.vmx["ethernet2.vnet"] = "vmnet1"
-      v.vmx["ethernet2.noPromisc"] = "FALSE"
+    end
+
+    srx.vm.provider "vmware_workstation" do |v|
+      v.gui = false
+      v.vmx["memsize"] = "3072"
+      v.vmx["numvcpus"] = "2"
+      v.vmx["ethernet1.generatedAddress"] = nil
+      v.vmx["ethernet1.connectionType"] = "custom"
+      v.vmx["ethernet1.present"] = "TRUE"
+      v.vmx["ethernet1.vnet"] = "vmnet0"
+      v.vmx["ethernet2.generatedAddress"] = nil
+      v.vmx["ethernet2.connectionType"] = "custom"
+      v.vmx["ethernet2.present"] = "TRUE"
+      v.vmx["ethernet2.vnet"] = "vmnet1"
     end
 
     srx.vm.provision "file", source: "scripts/srx-setup.sh", destination: "/tmp/srx-setup.sh"

@@ -3,6 +3,9 @@ delete security policies from-zone trust to-zone untrust
 delete security policies from-zone untrust to-zone trust
 delete security policies from-zone trust to-zone trust
 set system login user netconf class super-user authentication encrypted-password "$1$b1e7j6ek$4d/RrS9Zw/n6PrmyxKdN7."
+set interfaces ge-0/0/1 promiscuous-mode
+set interfaces ge-0/0/2 promiscuous-mode
+
 set security zones security-zone web interfaces ge-0/0/1.0
 set security zones security-zone web host-inbound-traffic system-services all
 set security zones security-zone web host-inbound-traffic protocols all

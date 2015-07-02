@@ -1,5 +1,10 @@
 Juniper SRX 2-Tier App Ansible Demo
 
+
+
+[![Video Demo](http://img.youtube.com/vi/eqHScYmKRhg/0.jpg)](https://youtu.be/eqHScYmKRhg)
+
+
 # Deploy Wordpress
 We have two sample wordpress customers "Bob" and "Jane", each with their own YAML file.
 
